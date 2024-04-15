@@ -126,17 +126,38 @@ function estimateWin(winnedLines, bettedLines, bet, balance) {
     return newBalance;
 }
 
+// und jetzt alles zusammen als ein Spiel einfügen:
+function mainGame(slot) {
+    console.log("Welcome to the best slot machine on the Planet.")
+    let balance = playersDeposit();
+    while (true) {
+        const numberOfLines = betOnLines();
+        const totalBet = playersBet(balance, numberOfLines);
+        const rolled = rollTheLines(slot);
+        console.log(showSlotMachine(rolled));
+        const correctLines = winningLines(rolled);
+        balance = estimateWin(correctLines, numberOfLines, totalBet, balance);
+        const play = prompt("Do you want to keep playing (y/n)? ");
+        if (play === "n") {
+            console.log("You have $" + balance + " in your account.")
+            break;
+        }
+    }
+}
+
 const prompt = require("prompt-sync")();
 const maxColumns = 3
 const maxLines = 4
-const depositAmount = playersDeposit();
-const numberOfLines = betOnLines();
-const totalBet = playersBet(depositAmount, numberOfLines)
+//const depositAmount = playersDeposit();
+//const numberOfLines = betOnLines();
+//const totalBet = playersBet(depositAmount, numberOfLines)
 const slotMachine = { "A": 50, "B": 4, "C": 6, "D": 8 }
 
 const rolled = rollTheLines(slotMachine);
 const correctLines = winningLines(rolled);
 
-console.log(showSlotMachine(rolled));
-console.log(estimateWin(correctLines, numberOfLines, totalBet, depositAmount))
+//console.log(showSlotMachine(rolled));
+//console.log(estimateWin(correctLines, numberOfLines, totalBet, depositAmount))
+
+console.log(mainGame(slotMachine));
 
