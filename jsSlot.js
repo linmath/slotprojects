@@ -67,7 +67,7 @@ function rollTheLines(wheel) {
     for (let line = 0; line < maxLines; line++) {
         rolledWheels.push([])
     }
-    for (let row = 0; row < maxRows; row++) {
+    for (let column = 0; column < maxColumns; column++) {
         const elements = [...listOfElements];
         for (let line = 0; line < maxLines; line++) {
             const randomIndex = getRandomIndex(elements);
@@ -81,23 +81,62 @@ function rollTheLines(wheel) {
 //wir wollen dem User auch anzeigen was die SlotMachine am Ende anzeigt
 //Die Einträge aus rolledWheels sind ja Listen, in denen jeweils die Spalten der SlotMachine angezeigt werden. Diese müssen jetzt auch als sloche angezeigt werden, d.h. die Einträge sollten untereinander und nicht nebeneinander stehen.
 function showSlotMachine(wheelsRoll) {
-    let result = "";
+    let result = "| ";
     for (let lines = 0; lines < maxLines; lines++) {
-        for (let rows = 0; rows < maxRows; rows++) {
-            result += `${wheelsRoll[lines][rows]} `
+        for (let column = 0; column < maxColumns; column++) {
+            result += `${wheelsRoll[lines][column]} | `
         }
-        result += "\n";
+        if (lines != maxLines-1) {
+            result += "\n| ";
+        }
     }
     return result;
 }
 
+//Jetzt müssen wir schauen ob der Spieler etwas gewonnen hat, bzw. ob es zeilen gibt, die übereistimmen.
+function winningLines(wheelsRoll) {
+    let winnedLines = 0;
+    for (let lines = 0; lines < maxLines; lines++) {
+        const firstElement = wheelsRoll[lines][0];
+        let check = 0;
+        for (let column = 1; column < maxColumns; column++) {
+            if (wheelsRoll[lines][column] === firstElement) {
+                check = check +1;
+            }
+        }
+        if (check === maxColumns-1) {
+            winnedLines = winnedLines + 1;
+        }
+    }
+    return winnedLines;
+}
+
+// jetzt müssen wir nur noch schauen, ob der Spieler gewonnen hat oder nicht:
+function estimateWin(winnedLines, bettedLines, bet, balance) {
+    let newBalance = 0
+    if (bettedLines <= winnedLines) {
+        newBalance = balance + bet;
+        console.log("You betted on " + bettedLines +" line(s). Thus you won $" + bet +". Your new balance is " + newBalance + ".")
+        
+    }
+    else {
+        newBalance = balance - bet;
+        console.log("You lost $" + bet + ", since you betted on " + bettedLines +" line(s). Your new balance is " + newBalance + ".")
+    }
+    return newBalance;
+}
+
 const prompt = require("prompt-sync")();
-const maxRows = 3
+const maxColumns = 3
 const maxLines = 4
 const depositAmount = playersDeposit();
 const numberOfLines = betOnLines();
 const totalBet = playersBet(depositAmount, numberOfLines)
-const slotMachine = { "A": 2, "B": 4, "C": 6, "D": 8 }
+const slotMachine = { "A": 50, "B": 4, "C": 6, "D": 8 }
 
-const rolled = rollTheLines(slotMachine)
-console.log(showSlotMachine(rolled))
+const rolled = rollTheLines(slotMachine);
+const correctLines = winningLines(rolled);
+
+console.log(showSlotMachine(rolled));
+console.log(estimateWin(correctLines, numberOfLines, totalBet, depositAmount))
+
